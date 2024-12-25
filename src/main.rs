@@ -8,7 +8,7 @@ use tui::{
     backend::{CrosstermBackend},
     layout::{Constraint, Direction, Layout},
     style::{Color, Style},
-    widgets::{Block, Borders, Paragraph, Row, Table},
+    widgets::{Block, Borders, Paragraph, Row, Table, List, ListItem},
     Terminal,
 };
 use crossterm::ExecutableCommand;
@@ -37,8 +37,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             std::process::exit(1);
         }
     };
-
-    println!("Connected to {}. Initializing radar UI...", port_name);
 
     // Create a thread-safe channel to send radar data to the UI
     let (tx, rx) = mpsc::channel();
@@ -78,8 +76,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             if let Some((angle, distance)) = parse_radar_data(&data) {
                 radar_data.push((angle, distance));
 
-                // Keep only the last 10 readings
-                if radar_data.len() > 10 {
+                // Keep only the last 16 readings
+                if radar_data.len() > 16 {
                     radar_data.remove(0);
                 }
             }
@@ -90,7 +88,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(2)
-            .constraints([Constraint::Length(3), Constraint::Min(0)].as_ref())
+            .constraints([
+                Constraint::Length(3),  // Heading
+                         Constraint::Length(20), // Radar Data Table height
+                         Constraint::Length(7),  // Footer height
+            ].as_ref())
             .split(f.size());
 
             // Heading
@@ -110,6 +112,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .widths(&[Constraint::Length(10), Constraint::Length(15)]);
 
             f.render_widget(table, chunks[1]);
+
+            // Footer (About Section)
+            let footer_text = vec![
+                ListItem::new("About: Arduino Radar Project").style(Style::default().fg(Color::Blue)),
+                      ListItem::new("GitHub: https://github.com/the-abra/arduino-radar").style(Style::default().fg(Color::Green)),
+                      ListItem::new("Requirements:").style(Style::default().fg(Color::Magenta)),
+                      ListItem::new("- Arduino Uno (or equivalent)").style(Style::default().fg(Color::White)),
+                      ListItem::new("- SG90 Servo Motor").style(Style::default().fg(Color::White)),
+                      ListItem::new("- HC-SR04 Ultrasonic Distance Sensor").style(Style::default().fg(Color::White)),
+                      ListItem::new("Wiring:").style(Style::default().fg(Color::Magenta)),
+                      ListItem::new("HC-SR04: TRIG -> pin 3, ECHO -> pin 2, VCC -> 5V, GND -> GND").style(Style::default().fg(Color::White)),
+                      ListItem::new("SG90: Signal -> pin 9, VCC -> 5V, GND -> GND").style(Style::default().fg(Color::White)),
+                      ListItem::new("To run:").style(Style::default().fg(Color::Magenta)),
+                      ListItem::new("1. Build: cargo build --release").style(Style::default().fg(Color::White)),
+                      ListItem::new("2. Run: cargo run -- /dev/ttyUSB0").style(Style::default().fg(Color::White)),
+            ];
+
+            let footer = List::new(footer_text)
+            .block(Block::default().borders(Borders::ALL).title("About"));
+
+            f.render_widget(footer, chunks[2]);
         })?;
     }
 
