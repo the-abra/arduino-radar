@@ -1,20 +1,31 @@
-name: Rust
+name: Rust CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
-
-env:
-  CARGO_TERM_COLOR: always
+    branches:
+      - main
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Make sure to use an appropriate runner
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Clippy
-      run: cargo clippy --all-targets --all-features
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step to install dependencies
+      - name: Install libudev and pkg-config
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libudev-dev pkg-config
+
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: stable
+
+      - name: Run Clippy
+        run: cargo clippy --all-targets --all-features
