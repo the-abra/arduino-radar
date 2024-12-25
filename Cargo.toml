@@ -1,0 +1,10 @@
+[package]
+name = "serial_monitor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serialport = "4.2.0"
+crossterm = "0.26.0"
+tui = "0.19.0"
+
