@@ -34,7 +34,7 @@ Once the hardware is set up, upload the code to your Arduino. Download the `ardu
 
 ## Run TUI via pre-build (Rust:Linux)
 
-    ./build/serial_monitor.run /dev/ttyUSB0
+    ./build/serial_monitor.build /dev/ttyUSB0
     
   Make sure your Arduino is connected via USB to /dev/ttyUSB0 (or the correct port for your system).<br/>
   **Note**: You probably need root to access the serial connection.
