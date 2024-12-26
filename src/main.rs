@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    // Create a thread-safe channel to send radar data to the UI
+    // Create a thread-safe channel to send Serial to the UI
     let (tx, rx) = mpsc::channel();
 
     // Start a thread to read serial data
@@ -57,7 +57,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    // Radar Data Table
+    // Serial Table
     let mut radar_data: Vec<(String, String)> = vec![];
 
     // Main TUI loop
@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        // Receive and process radar data
+        // Receive and process Serial
         if let Ok(data) = rx.try_recv() {
             if let Some((angle, distance)) = parse_radar_data(&data) {
                 radar_data.push((angle, distance));
@@ -90,25 +90,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .margin(2)
             .constraints([
                 Constraint::Length(3),  // Heading
-                         Constraint::Length(20), // Radar Data Table height
+                         Constraint::Length(20), // Serial Table height
                          Constraint::Length(7),  // Footer height
             ].as_ref())
             .split(f.size());
 
             // Heading
-            let heading = Paragraph::new("Radar Data Monitor (Press 'q' to quit)")
+            let heading = Paragraph::new("Serial Monitor (Press 'q' to quit)")
             .style(Style::default().fg(Color::Cyan))
             .block(Block::default().borders(Borders::ALL).title("Status"));
             f.render_widget(heading, chunks[0]);
 
-            // Radar Data Table
+            // Serial Table
             let table = Table::new(
                 radar_data.iter().map(|(angle, distance)| {
                     Row::new(vec![angle.clone(), distance.clone()])
                 }),
             )
             .header(Row::new(vec!["Angle (°)", "Distance (cm)"]).style(Style::default().fg(Color::Yellow)))
-            .block(Block::default().borders(Borders::ALL).title("Radar Data"))
+            .block(Block::default().borders(Borders::ALL).title("Serial"))
             .widths(&[Constraint::Length(10), Constraint::Length(15)]);
 
             f.render_widget(table, chunks[1]);
@@ -142,7 +142,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-// Parse radar data from the serial input
+// Parse Serial from the serial input
 fn parse_radar_data(data: &str) -> Option<(String, String)> {
     // Example data: "Angle: 45°, Distance: 28 cm"
     let parts: Vec<&str> = data.split(',').collect();
