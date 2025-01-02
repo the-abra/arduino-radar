@@ -57,6 +57,12 @@ Make sure your Arduino is connected via USB to `/dev/ttyUSB0` (or the correct po
  
 The radar's movement and distance readings will be displayed in the terminal.
 
+
+
+https://github.com/user-attachments/assets/583360af-0d21-4aa7-a272-a33228fffba6
+
+
+
 # Notes
 
  Ensure your Arduino board is correctly connected to your computer and that the correct serial port is selected. <br/>
